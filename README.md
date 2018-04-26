@@ -1,6 +1,5 @@
-# RESTful API with golang
+# RESTful API with golang and mysql
 This is simple example restful api server using [gin][gn1] framework.
-For simplifying code, this example uses a mock database that is map[string]interface{}
 
 ## Install and Run
 
