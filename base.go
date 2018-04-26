@@ -117,7 +117,7 @@ func main() {
 		id := c.Query("id")
 		rating := c.PostForm("rating");
 		review := c.PostForm("review");
-		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ?, where id= ?;")
+		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ?, WHERE id= ?;")
 		if err != nil {
 			fmt.Print(err.Error())
 		}
@@ -128,7 +128,23 @@ func main() {
 
 		defer stmt.Close()
 		c.JSON(http.StatusOK, gin.H{
-			"message": fmt.Sprintf("user-review with id %d successfully updated", id),
+			"message": fmt.Sprintf("user-review with id %s successfully updated", id),
+		})
+	})
+
+	// Delete resources
+	router.DELETE("/user-review", func(c *gin.Context) {
+		id := c.Query("id")
+		stmt, err := db.Prepare("DELETE FROM user_review WHERE id= ?;")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		_, err = stmt.Exec(id)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": fmt.Sprintf("Successfully deleted user-review with id: %s", id),
 		})
 	})
 
