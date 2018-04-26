@@ -108,10 +108,29 @@ func main() {
 
 		defer stmt.Close()
 		c.JSON(http.StatusOK, gin.H{
-			"message": fmt.Sprintf("user-review from user_id: %v successfully created", userId),
+			"message": fmt.Sprintf("user-review from user_id: %s successfully created", userId),
 		})
 	})
 
+	// PUT - update a userReview details
+	router.PUT("/user-review", func(c *gin.Context) {
+		id := c.Query("id")
+		rating := c.PostForm("rating");
+		review := c.PostForm("review");
+		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ?, where id= ?;")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		_, err = stmt.Exec(rating, review, id)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		defer stmt.Close()
+		c.JSON(http.StatusOK, gin.H{
+			"message": fmt.Sprintf("user-review with id %d successfully updated", id),
+		})
+	})
 
 	router.Run(":3000")
 }
