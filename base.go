@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/dummy_db")
+	//change second parameter root:password to [username]:[password] of yours.
+	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/dummy_db?parseTime=true")
 	if err != nil {
 		fmt.Print(err.Error())
 	}
@@ -44,7 +45,7 @@ func main() {
 		id := c.Param("id")
 		row := db.QueryRow("SELECT * FROM user_review WHERE id = ?;", id)
 		err = row.Scan(&userReview.Id, &userReview.OrderId, &userReview.ProductId,
-		 			&userReview.ProductId, &userReview.Rating, &userReview.Review,
+		 			&userReview.UserId, &userReview.Rating, &userReview.Review,
 		 			&userReview.CreatedAt, &userReview.UpdatedAt)
 		
 		if err != nil {
@@ -74,8 +75,9 @@ func main() {
 		}
 		for rows.Next() {
 			err = rows.Scan(&userReview.Id, &userReview.OrderId, &userReview.ProductId,
-		 			&userReview.ProductId, &userReview.Rating, &userReview.Review,
+		 			&userReview.UserId, &userReview.Rating, &userReview.Review,
 		 			&userReview.CreatedAt, &userReview.UpdatedAt)
+		
 			userReviews = append(userReviews, userReview)
 
 			if err != nil {
@@ -117,7 +119,7 @@ func main() {
 		id := c.Query("id")
 		rating := c.PostForm("rating");
 		review := c.PostForm("review");
-		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ?, WHERE id= ?;")
+		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ? WHERE id= ?;")
 		if err != nil {
 			fmt.Print(err.Error())
 		}
