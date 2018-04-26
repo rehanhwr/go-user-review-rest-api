@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -100,6 +101,14 @@ func main() {
 		userId := c.PostForm("userId");
 		rating := c.PostForm("rating");
 		review := c.PostForm("review");
+
+		if isRatingError(rating) {
+			c.JSON(http.StatusBadRequest, gin.H {
+				"message": fmt.Sprintf("Error. Rating should between 1.0 and 5.0"),
+			})
+			return
+		}
+
 		stmt, err := db.Prepare("INSERT INTO user_review (order_id, product_id, user_id, rating, review) VALUES(?,?,?,?,?);")
 		if err != nil {
 			fmt.Print(err.Error())
@@ -123,6 +132,14 @@ func main() {
 		rating := c.PostForm("rating");
 		review := c.PostForm("review");
 		stmt, err := db.Prepare("UPDATE user_review SET rating= ?, review= ? WHERE id= ?;")
+
+		if isRatingError(rating) {
+			c.JSON(http.StatusBadRequest, gin.H {
+				"message": fmt.Sprintf("Error. Rating should between 1.0 and 5.0"),
+			})
+			return
+		}
+		
 		if err != nil {
 			fmt.Print(err.Error())
 		}
@@ -155,4 +172,12 @@ func main() {
 	})
 
 	router.Run(":3000")
+}
+
+func isRatingError(rating string) bool {
+	realRating, e := strconv.ParseFloat(rating, 64)
+	if e != nil {
+		fmt.Print(e.Error())
+	}
+	return realRating < 1.0 || realRating > 5.0
 }
