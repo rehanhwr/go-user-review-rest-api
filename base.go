@@ -43,7 +43,7 @@ func main() {
 			result gin.H
 		)
 		id := c.Param("id")
-		row := db.QueryRow("SELECT * from user_review where id = ?;", id)
+		row := db.QueryRow("SELECT * FROM user_review WHERE id = ?;", id)
 		err = row.Scan(&userReview.Id, &userReview.OrderId, &userReview.ProductId,
 		 			&userReview.ProductId, &userReview.Rating, &userReview.Review,
 		 			&userReview.CreatedAt, &userReview.UpdatedAt)
@@ -61,6 +61,33 @@ func main() {
 			}
 		}
 		c.JSON(http.StatusOK, result)
+	})
+
+	// GET all userReview
+	router.GET("/userReviews", func(c *gin.Context) {
+		var (
+			userReview  UserReview
+			userReviews []UserReview
+		)
+		rows, err := db.Query("SELECT * FROM user_review;")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		for rows.Next() {
+			err = rows.Scan(&userReview.Id, &userReview.OrderId, &userReview.ProductId,
+		 			&userReview.ProductId, &userReview.Rating, &userReview.Review,
+		 			&userReview.CreatedAt, &userReview.UpdatedAt)
+			userReviews = append(userReviews, userReview)
+
+			if err != nil {
+				fmt.Print(err.Error())
+			}
+		}
+		defer rows.Close()
+		c.JSON(http.StatusOK, gin.H{
+			"result": userReviews,
+			"count":  len(userReviews),
+		})
 	})
 
 	router.Run(":3000")
