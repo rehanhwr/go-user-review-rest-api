@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	//change second parameter root:password to [username]:[password] of yours.
+	// change second parameter root:password to [username]:[password] of yours.
+	// parseTime=true is used for changing mysql timestamp to time.Time golang
 	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/dummy_db?parseTime=true")
 	if err != nil {
 		fmt.Print(err.Error())
@@ -37,6 +38,7 @@ func main() {
 	router := gin.Default()
 
 	// GET a userReview detail
+	// e.g. /user-review/1
 	router.GET("/user-review/:id", func(c *gin.Context) {
 		var (
 			userReview UserReview
@@ -115,6 +117,7 @@ func main() {
 	})
 
 	// PUT - update a userReview details
+	// e.g. /user-review?id=1
 	router.PUT("/user-review", func(c *gin.Context) {
 		id := c.Query("id")
 		rating := c.PostForm("rating");
@@ -135,6 +138,7 @@ func main() {
 	})
 
 	// Delete resources
+	// e.g. /user-review?id=1
 	router.DELETE("/user-review", func(c *gin.Context) {
 		id := c.Query("id")
 		stmt, err := db.Prepare("DELETE FROM user_review WHERE id= ?;")
