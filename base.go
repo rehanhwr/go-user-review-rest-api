@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -64,7 +63,7 @@ func main() {
 	})
 
 	// GET all userReview
-	router.GET("/userReviews", func(c *gin.Context) {
+	router.GET("/user-reviews", func(c *gin.Context) {
 		var (
 			userReview  UserReview
 			userReviews []UserReview
@@ -89,6 +88,30 @@ func main() {
 			"count":  len(userReviews),
 		})
 	})
+
+	// POST new userReview details
+	router.POST("/user-review", func(c *gin.Context) {
+		orderId := c.PostForm("orderId")
+		productId := c.PostForm("productId");
+		userId := c.PostForm("userId");
+		rating := c.PostForm("rating");
+		review := c.PostForm("review");
+		stmt, err := db.Prepare("INSERT INTO user_review (order_id, product_id, user_id, rating, review) VALUES(?,?,?,?,?);")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		_, err = stmt.Exec(orderId, productId, userId, rating, review)
+
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		defer stmt.Close()
+		c.JSON(http.StatusOK, gin.H{
+			"message": fmt.Sprintf("user-review from user_id: %v successfully created", userId),
+		})
+	})
+
 
 	router.Run(":3000")
 }
